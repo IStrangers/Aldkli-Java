@@ -128,7 +128,7 @@ public final class ApiScanner {
     }
 
     private MultipleReturnValue getRequiredAndType(Parameter parameter) {
-        boolean required = false;
+        boolean required = true;
         String type = "";
         if (parameter != null) {
             RequestParam requestParam = parameter.getDeclaredAnnotation(RequestParam.class);
