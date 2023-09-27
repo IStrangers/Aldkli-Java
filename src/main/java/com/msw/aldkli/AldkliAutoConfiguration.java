@@ -5,15 +5,15 @@ import com.msw.aldkli.scanner.ApiScanner;
 import java.util.List;
 import java.util.Map;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.ContextRefreshedEvent;
 
 @Configuration
 @ComponentScan({"com.msw.aldkli"})
-public class AldkliAutoConfiguration implements ApplicationListener {
+public class AldkliAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>  {
 
     private ApplicationContext applicationContext;
 
@@ -26,7 +26,8 @@ public class AldkliAutoConfiguration implements ApplicationListener {
         return new AldkliContext();
     }
 
-    public void onApplicationEvent(ApplicationEvent applicationEvent) {
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
         Map<String,ApiEntry> apiEntryMap = this.applicationContext.getBeansOfType(ApiEntry.class);
         if (!apiEntryMap.isEmpty()) {
             ApiScanner apiScanner = new ApiScanner();
