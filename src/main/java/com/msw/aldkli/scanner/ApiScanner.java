@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public final class ApiScanner {
 
      public List<ApiGroupMetaData> scan(String scanPackage)   {
-        var apiGroupClassList = ClassUtil.scanClass(scanPackage,c ->
+        List<Class> apiGroupClassList = ClassUtil.scanClass(scanPackage,c ->
            c.getAnnotation(ApiGroup.class) != null
         );
         List<ApiGroupMetaData> apiGroupMetaDataList = new ArrayList<>(apiGroupClassList.size());
@@ -117,7 +117,7 @@ public final class ApiScanner {
     }
 
     private ApiParamMetaData toApiParam(ApiParam apiParam,Parameter parameter) {
-        String name = apiParam != null && StringUtils.hasText(apiParam.param()) ? parameter.getName() : "";
+        String name = apiParam != null ? apiParam.param() : parameter.getName();
         MultipleReturnValue values = getRequiredAndType(parameter);
         String description = apiParam != null ? apiParam.description() : "";
         String dataType = parameter != null ? ClassUtil.getGenericTypeName(parameter.getParameterizedType()) : "";
@@ -130,15 +130,17 @@ public final class ApiScanner {
     private MultipleReturnValue getRequiredAndType(Parameter parameter) {
         boolean required = false;
         String type = "";
-        RequestParam requestParam = parameter.getDeclaredAnnotation(RequestParam.class);
-        if (requestParam != null) {
-            required = requestParam.required();
-            type = "search";
-        }
-        PathVariable pathVariable = parameter.getDeclaredAnnotation(PathVariable.class);
-        if (pathVariable != null) {
-            required = pathVariable.required();
-            type = "urlPath";
+        if (parameter != null) {
+            RequestParam requestParam = parameter.getDeclaredAnnotation(RequestParam.class);
+            if (requestParam != null) {
+                required = requestParam.required();
+                type = "search";
+            }
+            PathVariable pathVariable = parameter.getDeclaredAnnotation(PathVariable.class);
+            if (pathVariable != null) {
+                required = pathVariable.required();
+                type = "urlPath";
+            }
         }
         List<Object> values = Arrays.asList(required, type);
         return new MultipleReturnValue() {
